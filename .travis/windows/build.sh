@@ -1,4 +1,4 @@
 mkdir build
 cd build
-cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE ..
-cmake -build .
+cmake ..
+cmake --build . --config Release
