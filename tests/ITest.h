@@ -13,18 +13,18 @@ public:
     };
 
     virtual ~ITest() = default;
-    virtual int run() = 0;
+    virtual bool run() = 0;
 };
 
 #define ADD_TEST(name) \
 class name : public ITest { \
 public: \
     ~name() override = default; \
-    int run() override; \
+    bool run() override; \
 }; \
 \
 const ITest::AddTestHelper<name> name ## var; \
 \
-int name::run()
+bool name::run()
 
 #endif // ITEST_H_
