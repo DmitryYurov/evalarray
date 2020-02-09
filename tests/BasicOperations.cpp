@@ -1,68 +1,66 @@
 #include "evalarray.h"
 #include "ITest.h"
 
-namespace {
-template <class T>
-bool createEmptyArray();
+using namespace Eval;
 
-template <class T>
-bool createFromPlainArray();
-}
-
-ADD_TEST(CreateEmpty) {
-    if (!createEmptyArray<double>())
-        return false;
-
-    if (!createEmptyArray<int>())
-        return false;
-
-    return true;
-}
-
-ADD_TEST(CreateFromPlainArray)
-{
-    if (!createFromPlainArray<double>())
-        return false;
-
-    if (!createFromPlainArray<int>())
-        return false;
-
-    return true;
-}
-
-namespace {
-template <class T>
-bool createEmptyArray()
-{
-    evalarray<T> var;
+ADD_TEST(DefaultConstructor) {
+    evalarray<double> var;
     if (var.size() != 0)
         return false;
-
-    return true;
-}
-
-template <class T>
-bool createFromPlainArray()
-{
-    T* array = new T[10];
-    for (size_t i = 0; i < 10; ++i)
-        array[i] = T();
-
-    evalarray<T> val(array, 10);
-    if (val.size() != 10)
+    if (var.nDims() != 1)
         return false;
 
-    for (size_t i = 0; i < 10; ++i)
-        if (val[i] != T())
-            return false;
+    evalarray<int> var2;
+    if (var2.size() != 0)
+        return false;
+    if (var2.nDims() != 1)
+        return false;
 
-    delete[] array;
-    array = nullptr;
+    evalarray<double, 3> var3;
+    if (var3.size() != 0)
+        return false;
+    if (var3.nDims() != 3)
+        return false;
 
-    for (size_t i = 0; i < 10; ++i)
-        if (val[i] != T())
-            return false;
+    evalarray<int, 3> var4;
+    if (var4.size() != 0)
+        return false;
+    if (var4.nDims() != 3)
+        return false;
 
     return true;
 }
+
+ADD_TEST(MakeEvalarray) {
+    auto array = make_evalarray<double>();
+    if (array.size() != 0)
+        return false;
+    if (array.nDims() != 1)
+        return false;
+
+    auto array2 = make_evalarray<int>();
+    if (array2.size() != 0)
+        return false;
+    if (array2.nDims() != 1)
+        return false;
+
+    auto array3 = make_evalarray<double>(1u, 2u, 3u);
+    if (array3.size() != 6u)
+        return false;
+    if (array3.nDims() != 3)
+        return false;
+
+    auto array4 = make_evalarray<int>(1u, 2u, 3u);
+    if (array4.size() != 6u)
+        return false;
+    if (array4.nDims() != 3)
+        return false;
+
+    return true;
+}
+
+ADD_TEST(ContructWithDims)
+{
+    evalarray a(1, {1u, 2u, 3u});
+    return true;
 }
