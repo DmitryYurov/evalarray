@@ -7,60 +7,74 @@ ADD_TEST(DefaultConstructor) {
     evalarray<double> var;
     if (var.size() != 0)
         return false;
-    if (var.nDims() != 1)
+    if (var.n_dimensions() != 1)
         return false;
 
     evalarray<int> var2;
     if (var2.size() != 0)
         return false;
-    if (var2.nDims() != 1)
+    if (var2.n_dimensions() != 1)
         return false;
 
     evalarray<double, 3> var3;
     if (var3.size() != 0)
         return false;
-    if (var3.nDims() != 3)
+    if (var3.n_dimensions() != 3)
         return false;
 
     evalarray<int, 3> var4;
     if (var4.size() != 0)
         return false;
-    if (var4.nDims() != 3)
+    if (var4.n_dimensions() != 3)
         return false;
 
     return true;
 }
 
-ADD_TEST(MakeEvalarray) {
-    auto array = make_evalarray<double>();
-    if (array.size() != 0)
-        return false;
-    if (array.nDims() != 1)
-        return false;
-
-    auto array2 = make_evalarray<int>();
-    if (array2.size() != 0)
-        return false;
-    if (array2.nDims() != 1)
-        return false;
-
-    auto array3 = make_evalarray<double>(1u, 2u, 3u);
-    if (array3.size() != 6u)
-        return false;
-    if (array3.nDims() != 3)
-        return false;
-
-    auto array4 = make_evalarray<int>(1u, 2u, 3u);
-    if (array4.size() != 6u)
-        return false;
-    if (array4.nDims() != 3)
-        return false;
-
-    return true;
-}
-
-ADD_TEST(ContructWithDims)
+ADD_TEST(ConstructWithDims)
 {
-    evalarray a(1, {1u, 2u, 3u});
+    evalarray a({1u, 2u, 3u}, 1);
+    if (!std::is_same_v<decltype(a), evalarray<int,3>>)
+        return false;
+    if (a.size() != 6)
+        return false;
+    for (size_t i = 0, size = a.size(); i < size; ++i)
+        if (a.data()[i] != 1)
+            return false;
+
+    evalarray b({1u, 2u, 3u}, 2.0);
+    if (!std::is_same_v<decltype(b), evalarray<double,3>>)
+        return false;
+    if (b.size() != 6)
+        return false;
+    for (size_t i = 0, size = b.size(); i < size; ++i)
+        if (b.data()[i] != 2.0)
+            return false;
+
+    const float val = 2.0;
+    evalarray c({1u, 2u, 3u}, val);
+    if (!std::is_same_v<decltype(c), evalarray<float,3>>)
+        return false;
+    if (c.size() != 6)
+        return false;
+    for (size_t i = 0, size = c.size(); i < size; ++i)
+        if (c.data()[i] != 2.0)
+            return false;
+
+    const unsigned val2 = 2;
+    evalarray d({1u, 2u, 3u}, std::move(val2));
+    if (!std::is_same_v<decltype(d), evalarray<unsigned,3>>)
+        return false;
+    if (d.size() != 6)
+        return false;
+    for (size_t i = 0, size = d.size(); i < size; ++i)
+        if (d.data()[i] != 2)
+            return false;
+
+    return true;
+}
+
+ADD_TEST(AccessOperators)
+{
     return true;
 }
