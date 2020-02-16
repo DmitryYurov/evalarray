@@ -9,6 +9,55 @@
 namespace Eval
 {
 
+class EvalarrayHelper
+{
+private:
+    template<class U, class H = void>
+    struct findValueType
+    {
+        using value_type = U;
+    };
+
+    template<class U>
+    struct findValueType<U,
+            typename std::enable_if<
+                std::is_same<
+                    typename U::value_type,
+                    typename U::value_type
+                >::value
+            >::type
+    >
+    {
+        using value_type = typename findValueType<typename U::value_type>::value_type;
+    };
+
+    template<class U, class H = void>
+    struct findNDim
+    {
+        static constexpr size_t value = 1;
+    };
+
+    template<class U>
+    struct findNDim<U,
+            typename std::enable_if<
+                std::is_same<
+                    typename U::value_type,
+                    typename U::value_type
+                >::value
+            >::type
+    >
+    {
+        static constexpr size_t value = 1 + findNDim<typename U::value_type>::value;
+    };
+
+public:
+    template<class U>
+    using value_type = typename findValueType<U>::value_type;
+
+    template<class U>
+    static constexpr size_t n_dim = findNDim<U>::value;
+};
+
 template<class T, size_t NDim = 1>
 class evalarray {
 public:
@@ -59,11 +108,23 @@ private:
 template<class T, class SizeType, size_t NDim>
     evalarray(SizeType const (&)[NDim], const T&) -> evalarray<T, NDim>;
 
+template<class U>
+    evalarray(std::initializer_list<U>) ->
+    evalarray<typename EvalarrayHelper::value_type<U>, EvalarrayHelper::n_dim<U>>;
+
 template<class T, size_t NDim>
 evalarray<T, NDim>::evalarray()
     : m_dims{}
     , m_data(nullptr)
 {}
+
+template<class T, size_t NDim>
+template<class U>
+evalarray<T, NDim>::evalarray(std::initializer_list<U>)
+    : m_dims{}
+    , m_data(nullptr)
+{
+}
 
 template<class T, size_t NDim>
 template<class SizeType>

@@ -88,6 +88,15 @@ ADD_TEST(ConstructWithDims)
     return true;
 }
 
+ADD_TEST(InitListConstruction)
+{
+    evalarray a{1, 2, 3 ,4};
+    if (!std::is_same_v<decltype(a), evalarray<int, 1>>)
+        return false;
+
+    return true;
+}
+
 ADD_TEST(AccessOperators)
 {
     evalarray a({3, 3, 3}, 2);
