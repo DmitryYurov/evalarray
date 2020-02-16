@@ -105,7 +105,7 @@ template<class T, size_t NDim>
 template<class... Dims>
 const T& evalarray<T, NDim>::operator()(Dims... indices) const
 {
-    static_assert(sizeof... (indices) == NDim, "Error in evalarray::operator[]: number of indices"
+    static_assert(sizeof... (indices) == NDim, "Error in evalarray::operator[]: number of indices "
                                                "does not match the array dimensions.");
     static_assert(std::is_convertible_v<std::common_type_t<Dims...>, int>,
             "Error in evalarray::operator[]: indices must be convertible to integral values");
