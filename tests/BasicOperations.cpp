@@ -71,6 +71,20 @@ ADD_TEST(ConstructWithDims)
         if (d.data()[i] != 2)
             return false;
 
+    evalarray e({1, 0, 1}, 1);
+    if (!std::is_same_v<decltype(e), evalarray<int,3>>)
+        return false;
+    if (e.size() != 0)
+        return false;
+
+    try {
+        evalarray f({1, -1, 1}, 1);
+        return false;
+    } catch (std::runtime_error err) {
+    } catch (...) {
+        return false;
+    }
+
     return true;
 }
 

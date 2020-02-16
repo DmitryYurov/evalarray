@@ -69,15 +69,19 @@ template<class T, size_t NDim>
 template<class SizeType>
 evalarray<T, NDim>::evalarray(SizeType const (&dims)[NDim], const T& val)
     : m_dims{}
-    , m_data(new T[std::accumulate(std::begin(dims), std::end(dims), 1u,
-                                   [](size_t lhs, size_t rhs) { return lhs * rhs; })] )
+    , m_data(nullptr)
 {
     static_assert (std::is_convertible<SizeType, size_t>::value,
-        "Error in Eval::make_evalarray: dimensions must be convertible to size_t");
+        "Error during evalarray construction: dimensions must be convertible to an integral type");
 
-    for (size_t i = 0; i < NDim; ++i)
+    for (size_t i = 0; i < NDim; ++i) {
+        if (dims[i] < 0)
+            throw std::runtime_error("Error during evalarray construction:"
+                                     "negative dimension size encountered");
         m_dims[i] = dims[i];
+    }
 
+    m_data = new T[size()];
     for (size_t i = 0, tot_size = size(); i < tot_size; ++i)
         m_data[i] = val;
 }
@@ -120,7 +124,7 @@ const T& evalarray<T, NDim>::operator()(Dims... indices) const
     }
 
     if (total_position >= size())
-        throw std::runtime_error("Error in evalarray::operator[]: indices exceed storage size.");
+        throw std::runtime_error("Error in evalarray::operator[]: indices exceed the storage size.");
 
     return m_data[total_position];
 }
