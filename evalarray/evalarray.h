@@ -6,58 +6,10 @@
 #include <numeric>
 #include <utility>
 
+#include "evalarray_utils.h"
+
 namespace Eval
 {
-
-class EvalarrayHelper
-{
-private:
-    template<class U, class H = void>
-    struct findValueType
-    {
-        using value_type = U;
-    };
-
-    template<class U>
-    struct findValueType<U,
-            typename std::enable_if<
-                std::is_same<
-                    typename U::value_type,
-                    typename U::value_type
-                >::value
-            >::type
-    >
-    {
-        using value_type = typename findValueType<typename U::value_type>::value_type;
-    };
-
-    template<class U, class H = void>
-    struct findNDim
-    {
-        static constexpr size_t value = 1;
-    };
-
-    template<class U>
-    struct findNDim<U,
-            typename std::enable_if<
-                std::is_same<
-                    typename U::value_type,
-                    typename U::value_type
-                >::value
-            >::type
-    >
-    {
-        static constexpr size_t value = 1 + findNDim<typename U::value_type>::value;
-    };
-
-public:
-    template<class U>
-    using value_type = typename findValueType<U>::value_type;
-
-    template<class U>
-    static constexpr size_t n_dim = findNDim<U>::value;
-};
-
 template<class T, size_t NDim = 1>
 class evalarray {
 public:
@@ -72,11 +24,11 @@ public:
     //! Constructs a zero-size evalarray
     evalarray();
 
-    template<class U>
-    evalarray(std::initializer_list<U> init);
-
     evalarray(const evalarray<T, NDim>& other);
     evalarray(evalarray<T, NDim>&& other);
+
+    template<class U, std::enable_if_t<HasValueType<U>::value, size_t> I = 0>
+    explicit evalarray(const U& init_obj);
 
     // Constructs an evalarray with dimensions specified by _dims_.
     // Values are initialized with copies of _val_.
@@ -105,12 +57,12 @@ private:
     T* m_data;
 };
 
-template<class T, class SizeType, size_t NDim>
-    evalarray(SizeType const (&)[NDim], const T&) -> evalarray<T, NDim>;
-
-template<class U>
-    evalarray(std::initializer_list<U>) ->
+template<class U, std::enable_if_t<HasValueType<U>::value, size_t> I = 0>
+explicit evalarray(const U&) ->
     evalarray<typename EvalarrayHelper::value_type<U>, EvalarrayHelper::n_dim<U>>;
+
+template<class T, class SizeType, size_t NDim>
+evalarray(SizeType const (&)[NDim], const T&) -> evalarray<T, NDim>;
 
 template<class T, size_t NDim>
 evalarray<T, NDim>::evalarray()
@@ -119,8 +71,8 @@ evalarray<T, NDim>::evalarray()
 {}
 
 template<class T, size_t NDim>
-template<class U>
-evalarray<T, NDim>::evalarray(std::initializer_list<U>)
+template<class U, std::enable_if_t<HasValueType<U>::value, size_t> I>
+evalarray<T, NDim>::evalarray(const U& init_obj)
     : m_dims{}
     , m_data(nullptr)
 {

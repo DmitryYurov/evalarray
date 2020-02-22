@@ -88,10 +88,14 @@ ADD_TEST(ConstructWithDims)
     return true;
 }
 
-ADD_TEST(InitListConstruction)
+ADD_TEST(ContainerConstruction)
 {
-    evalarray a{1, 2, 3 ,4};
+    evalarray a{std::array{1, 2, 3 ,4}};
     if (!std::is_same_v<decltype(a), evalarray<int, 1>>)
+        return false;
+
+    evalarray b{std::array{std::array{1, 2, 3}, std::array{1, 2, 3}}};
+    if (!std::is_same_v<decltype(b), evalarray<int, 2>>)
         return false;
 
     return true;
