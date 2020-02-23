@@ -70,10 +70,27 @@ evalarray<T, NDim>::evalarray()
     , m_data(nullptr)
 {}
 
+template<size_t i, class U>
+size_t get_size(const U& obj)
+{
+    if constexpr (i == 0)
+        return obj.size();
+    else
+        return get_size<i-1>(*obj.begin());
+}
+
+template<class U, size_t... Is>
+auto make_size_array(const U& obj, std::index_sequence<Is...> seq)
+{
+    std::array<size_t, seq.size()> result;
+    ((result[Is] = get_size<Is>(obj)), ...);
+    return result;
+}
+
 template<class T, size_t NDim>
 template<class U, std::enable_if_t<HasValueType<U>::value, size_t> I>
 evalarray<T, NDim>::evalarray(const U& init_obj)
-    : m_dims{}
+    : m_dims{make_size_array(init_obj, std::make_index_sequence<NDim>())}
     , m_data(nullptr)
 {
 }
@@ -84,7 +101,7 @@ evalarray<T, NDim>::evalarray(SizeType const (&dims)[NDim], const T& val)
     : m_dims{}
     , m_data(nullptr)
 {
-    static_assert (std::is_convertible<SizeType, size_t>::value,
+    static_assert (std::is_integral_v<SizeType>,
         "Error during evalarray construction: dimensions must be convertible to an integral type");
 
     for (size_t i = 0; i < NDim; ++i) {
@@ -120,7 +137,7 @@ const T& evalarray<T, NDim>::operator()(Dims... indices) const
 {
     static_assert(sizeof... (indices) == NDim, "Error in evalarray::operator[]: number of indices "
                                                "does not match the array dimensions.");
-    static_assert(std::is_convertible_v<std::common_type_t<Dims...>, int>,
+    static_assert(std::is_integral_v<std::common_type_t<Dims...>>,
             "Error in evalarray::operator[]: indices must be convertible to integral values");
 
     static const auto is_negative = [](auto param) {return param < 0;};

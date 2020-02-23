@@ -93,9 +93,13 @@ ADD_TEST(ContainerConstruction)
     evalarray a{std::array{1, 2, 3 ,4}};
     if (!std::is_same_v<decltype(a), evalarray<int, 1>>)
         return false;
+    if (a.dimensions() != std::array<size_t, 1>{4u})
+        return false;
 
     evalarray b{std::array{std::array{1, 2, 3}, std::array{1, 2, 3}}};
     if (!std::is_same_v<decltype(b), evalarray<int, 2>>)
+        return false;
+    if (b.dimensions() != std::array<size_t, 2>{2u, 3u})
         return false;
 
     return true;
