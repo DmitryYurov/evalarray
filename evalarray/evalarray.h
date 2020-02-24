@@ -1,8 +1,6 @@
 #ifndef EVALARRAY_H_
 #define EVALARRAY_H_
 
-#include <array>
-#include <cstddef>
 #include <numeric>
 #include <utility>
 
@@ -70,27 +68,10 @@ evalarray<T, NDim>::evalarray()
     , m_data(nullptr)
 {}
 
-template<size_t i, class U>
-size_t get_size(const U& obj)
-{
-    if constexpr (i == 0)
-        return obj.size();
-    else
-        return get_size<i-1>(*obj.begin());
-}
-
-template<class U, size_t... Is>
-auto make_size_array(const U& obj, std::index_sequence<Is...> seq)
-{
-    std::array<size_t, seq.size()> result;
-    ((result[Is] = get_size<Is>(obj)), ...);
-    return result;
-}
-
 template<class T, size_t NDim>
 template<class U, std::enable_if_t<HasValueType<U>::value, size_t> I>
 evalarray<T, NDim>::evalarray(const U& init_obj)
-    : m_dims{make_size_array(init_obj, std::make_index_sequence<NDim>())}
+    : m_dims{EvalarrayHelper::make_size_array(init_obj, std::make_index_sequence<NDim>())}
     , m_data(nullptr)
 {
 }

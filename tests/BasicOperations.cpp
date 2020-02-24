@@ -102,6 +102,13 @@ ADD_TEST(ContainerConstruction)
     if (b.dimensions() != std::array<size_t, 2>{2u, 3u})
         return false;
 
+    std::vector<std::vector<std::vector<double>>> input;
+    evalarray c{input};
+    if (!std::is_same_v<decltype(c), evalarray<double, 3>>)
+        return false;
+    if (c.dimensions() != std::array<size_t, 3>{0u, 0u, 0u})
+        return false;
+
     return true;
 }
 

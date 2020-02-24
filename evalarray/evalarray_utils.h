@@ -1,6 +1,7 @@
 #ifndef EVALARRAYHELPER_H
 #define EVALARRAYHELPER_H
 
+#include <array>
 #include <cstddef>
 #include <type_traits>
 
@@ -21,6 +22,15 @@ struct HasValueType<U, std::enable_if_t<std::is_same_v<typename U::value_type,ty
 class EvalarrayHelper
 {
 private:
+    template<size_t i, class U>
+    static size_t get_size(const U& obj)
+    {
+        if constexpr (i == 0)
+            return obj.size();
+        else
+            return obj.begin() == obj.end() ? 0 : get_size<i-1>(*obj.begin());
+    }
+
     template<class U, class H = void>
     struct findValueType
     {
@@ -51,6 +61,14 @@ public:
 
     template<class U>
     static constexpr size_t n_dim = findNDim<U>::value;
+
+    template<class U, size_t... Is>
+    static auto make_size_array(const U& obj, std::index_sequence<Is...> seq)
+    {
+        std::array<size_t, seq.size()> result;
+        ((result[Is] = get_size<Is>(obj)), ...);
+        return result;
+    }
 };
 }
 
