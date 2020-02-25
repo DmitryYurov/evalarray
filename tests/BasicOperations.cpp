@@ -88,30 +88,6 @@ ADD_TEST(ConstructWithDims)
     return true;
 }
 
-ADD_TEST(ContainerConstruction)
-{
-    evalarray a{std::array{1, 2, 3 ,4}};
-    if (!std::is_same_v<decltype(a), evalarray<int, 1>>)
-        return false;
-    if (a.dimensions() != std::array<size_t, 1>{4u})
-        return false;
-
-    evalarray b{std::array{std::array{1, 2, 3}, std::array{1, 2, 3}}};
-    if (!std::is_same_v<decltype(b), evalarray<int, 2>>)
-        return false;
-    if (b.dimensions() != std::array<size_t, 2>{2u, 3u})
-        return false;
-
-    std::vector<std::vector<std::vector<double>>> input;
-    evalarray c{input};
-    if (!std::is_same_v<decltype(c), evalarray<double, 3>>)
-        return false;
-    if (c.dimensions() != std::array<size_t, 3>{0u, 0u, 0u})
-        return false;
-
-    return true;
-}
-
 ADD_TEST(AccessOperators)
 {
     evalarray a({3, 3, 3}, 2);

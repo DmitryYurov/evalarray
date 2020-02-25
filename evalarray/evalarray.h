@@ -25,9 +25,6 @@ public:
     evalarray(const evalarray<T, NDim>& other);
     evalarray(evalarray<T, NDim>&& other);
 
-    template<class U, std::enable_if_t<HasValueType<U>::value, size_t> I = 0>
-    explicit evalarray(const U& init_obj);
-
     // Constructs an evalarray with dimensions specified by _dims_.
     // Values are initialized with copies of _val_.
     template<class SizeType>
@@ -55,10 +52,6 @@ private:
     T* m_data;
 };
 
-template<class U, std::enable_if_t<HasValueType<U>::value, size_t> I = 0>
-explicit evalarray(const U&) ->
-    evalarray<typename EvalarrayHelper::value_type<U>, EvalarrayHelper::n_dim<U>>;
-
 template<class T, class SizeType, size_t NDim>
 evalarray(SizeType const (&)[NDim], const T&) -> evalarray<T, NDim>;
 
@@ -67,14 +60,6 @@ evalarray<T, NDim>::evalarray()
     : m_dims{}
     , m_data(nullptr)
 {}
-
-template<class T, size_t NDim>
-template<class U, std::enable_if_t<HasValueType<U>::value, size_t> I>
-evalarray<T, NDim>::evalarray(const U& init_obj)
-    : m_dims{EvalarrayHelper::make_size_array(init_obj, std::make_index_sequence<NDim>())}
-    , m_data(nullptr)
-{
-}
 
 template<class T, size_t NDim>
 template<class SizeType>
