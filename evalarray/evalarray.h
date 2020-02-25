@@ -28,7 +28,10 @@ public:
     // Constructs an evalarray with dimensions specified by _dims_.
     // Values are initialized with copies of _val_.
     template<class SizeType>
-    evalarray(SizeType const (&dims)[NDim], const T& val);
+    evalarray(SizeType const (&dims)[NDim], const T& val = T());
+
+    template<class SizeType>
+    evalarray(SizeType const (&dims)[NDim], const T* data);
 
     virtual ~evalarray();
 
@@ -64,19 +67,9 @@ evalarray<T, NDim>::evalarray()
 template<class T, size_t NDim>
 template<class SizeType>
 evalarray<T, NDim>::evalarray(SizeType const (&dims)[NDim], const T& val)
-    : m_dims{}
+    : m_dims{makeArray(dims)}
     , m_data(nullptr)
 {
-    static_assert (std::is_integral_v<SizeType>,
-        "Error during evalarray construction: dimensions must be convertible to an integral type");
-
-    for (size_t i = 0; i < NDim; ++i) {
-        if (dims[i] < 0)
-            throw std::runtime_error("Error during evalarray construction:"
-                                     "negative dimension size encountered");
-        m_dims[i] = dims[i];
-    }
-
     m_data = new T[size()];
     for (size_t i = 0, tot_size = size(); i < tot_size; ++i)
         m_data[i] = val;

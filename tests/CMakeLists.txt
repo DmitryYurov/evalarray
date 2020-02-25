@@ -6,7 +6,8 @@ set(SOURCES
     ITest.h
     TestContainer.h
     main.cpp
-    BasicOperations.cpp
+    AccessAndSlicing.cpp
+    Constructors.cpp
     TestContainer.cpp
 )
 
